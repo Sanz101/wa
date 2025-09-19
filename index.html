@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>University Events Database</title>
+    <title>University Events Database - Community Edition</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.22.5/babel.min.js"></script>
@@ -30,12 +30,42 @@
         .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
+        .crowd-gradient {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%);
+        }
         .artist-tag {
             background: linear-gradient(45deg, #f3f4f6, #e5e7eb);
             transition: all 0.2s ease;
         }
         .artist-tag:hover {
             background: linear-gradient(45deg, #ddd6fe, #c4b5fd);
+        }
+        .crowd-badge {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .modal-backdrop {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+        }
+        .form-input {
+            transition: all 0.3s ease;
+        }
+        .form-input:focus {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        .add-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            transition: all 0.3s ease;
+        }
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(79, 172, 254, 0.3);
         }
     </style>
 </head>
@@ -45,7 +75,7 @@
     <script type="text/babel">
         const { useState, useMemo } = React;
 
-        const eventsData = [
+        const initialEventsData = [
             // 2022 Events
             {
                 year: 2022,
@@ -53,7 +83,8 @@
                 date: "-",
                 artists: ["Jaya Sri", "Nadeemal", "Sangeeth"],
                 band: "Wayo",
-                compere: "-"
+                compere: "-",
+                crowdFed: false
             },
             {
                 year: 2022,
@@ -61,7 +92,8 @@
                 date: "-",
                 artists: ["Mihindu Ariyarathna", "Athma Liyanage", "Tharindu Damsara"],
                 band: "Jomey (Supun Perera)",
-                compere: "-"
+                compere: "-",
+                crowdFed: false
             },
             {
                 year: 2022,
@@ -69,7 +101,8 @@
                 date: "-",
                 artists: ["Kasun Kalhara", "Raini Charuka", "Neckratha", "Nadeemal Perera"],
                 band: "Point 5 (Nadeemal)",
-                compere: "Samare"
+                compere: "Samare",
+                crowdFed: false
             },
             {
                 year: 2022,
@@ -77,7 +110,8 @@
                 date: "-",
                 artists: ["Kanchana Anuradhi", "Supun Perera", "Shadika Nisansala", "Chandana Liyanarachchi"],
                 band: "Naada",
-                compere: "-"
+                compere: "-",
+                crowdFed: false
             },
             
             // 2023 Events
@@ -87,7 +121,8 @@
                 date: "May-30",
                 artists: ["Umaria", "Shanuka", "Dinesh Gamage"],
                 band: "Daddy",
-                compere: "-"
+                compere: "-",
+                crowdFed: false
             },
             {
                 year: 2023,
@@ -95,7 +130,8 @@
                 date: "Aug-15",
                 artists: ["Kasun Kalhara", "Piyath Rajapaksha", "Bachi Susan"],
                 band: "2forty2 (Billy)",
-                compere: "Thisanka"
+                compere: "Thisanka",
+                crowdFed: false
             },
             {
                 year: 2023,
@@ -103,7 +139,8 @@
                 date: "-",
                 artists: ["Shane Singh", "Lahiru Perera", "Athma Liyanage", "Centigradez"],
                 band: "Line One",
-                compere: "Thisanka"
+                compere: "Thisanka",
+                crowdFed: false
             },
             {
                 year: 2023,
@@ -111,7 +148,8 @@
                 date: "Dec-12",
                 artists: ["BNS", "Keerth Pasquel", "Uresha Ravihari"],
                 band: "Mariens",
-                compere: "Kalum Srimal"
+                compere: "Kalum Srimal",
+                crowdFed: false
             },
             {
                 year: 2023,
@@ -119,7 +157,8 @@
                 date: "Jun-23",
                 artists: ["Amal Perera", "Ashanthi", "Mihindu Ariyarathna", "Sarith Surith"],
                 band: "The News",
-                compere: "Manuranga"
+                compere: "Manuranga",
+                crowdFed: false
             },
             {
                 year: 2023,
@@ -127,7 +166,8 @@
                 date: "-",
                 artists: ["Samitha Mudunkotuwa", "Danith Sri", "Sanka Dineth", "Divulgane"],
                 band: "Naada",
-                compere: "Indrasiri Sunaweera"
+                compere: "Indrasiri Sunaweera",
+                crowdFed: false
             },
             
             // 2024 Events
@@ -137,7 +177,8 @@
                 date: "May-08",
                 artists: ["Amarasiri Peris", "Edward Jayakodi", "Charitha Priyadarshana", "Pradeepa Dharmadasa"],
                 band: "Nalaka Sajee",
-                compere: "Bandula Nanayakkarawasam"
+                compere: "Bandula Nanayakkarawasam",
+                crowdFed: false
             },
             {
                 year: 2024,
@@ -145,7 +186,8 @@
                 date: "-",
                 artists: ["T.M. Jayarathna", "Raini Charuka", "Indrachapa Liyanage"],
                 band: "-",
-                compere: "-"
+                compere: "-",
+                crowdFed: false
             },
             {
                 year: 2024,
@@ -153,7 +195,8 @@
                 date: "Oct-24",
                 artists: ["Amal Perera", "Centigradz", "Roony"],
                 band: "Avatar",
-                compere: "Dananjaya"
+                compere: "Dananjaya",
+                crowdFed: false
             },
             {
                 year: 2024,
@@ -161,7 +204,8 @@
                 date: "-",
                 artists: ["Shihan Mihiranga", "Samitha Mudunkotuwa", "Chandana Liyanarachchi", "Romesh Sugathapala"],
                 band: "Tunes",
-                compere: "Thisanka"
+                compere: "Thisanka",
+                crowdFed: false
             },
             {
                 year: 2024,
@@ -169,7 +213,8 @@
                 date: "Jul-16",
                 artists: ["Kasun Kalhara", "Indrachapa", "Umariya", "Shirly Y", "Mihiran"],
                 band: "Naada",
-                compere: "Vishwa Lanka"
+                compere: "Vishwa Lanka",
+                crowdFed: false
             },
             {
                 year: 2024,
@@ -177,7 +222,8 @@
                 date: "Nov-19",
                 artists: ["Jaya Sri", "Kanchana Anuradhi", "Sanka Dineth"],
                 band: "Yaka Crew (Chanuka Mora)",
-                compere: "-"
+                compere: "-",
+                crowdFed: false
             },
             {
                 year: 2024,
@@ -185,7 +231,8 @@
                 date: "Dec-13",
                 artists: ["Senanayaka Weeraliyadda", "Dushyantha Weeraman", "Chandraleka", "Randeer"],
                 band: "Midlane",
-                compere: "Indrasiri Sunaweera"
+                compere: "Indrasiri Sunaweera",
+                crowdFed: false
             },
             
             // 2025 Events
@@ -195,7 +242,8 @@
                 date: "-",
                 artists: ["Keerth Pasquel", "Nirosha Virajini", "Karunarathne Divulgane", "Harshana Dissanayake"],
                 band: "Nalaka Sajee",
-                compere: "Dammika Bandara"
+                compere: "Dammika Bandara",
+                crowdFed: false
             },
             {
                 year: 2025,
@@ -203,23 +251,33 @@
                 date: "May-21",
                 artists: ["Umara Singhawansha", "Athula Adikari", "Bachi Susan"],
                 band: "Infinity",
-                compere: "Students"
-            }
+                compere: "Students",
+                crowdFed: false
+            },
             {
                 year: 2025,
                 event: "Pahasaraniya",
                 date: "-",
                 artists: ["Ameliya", "Sanuka Wikramasinghe", "Pradeep Rangana"],
                 band: "Yaka Crew",
-                compere: "-"
+                compere: "Thisanka",
+                crowdFed: false
             }
         ];
 
         function EventCard({ event }) {
             return (
-                <div className="event-card bg-white rounded-xl shadow-lg p-6 h-full border border-gray-100">
+                <div className="event-card bg-white rounded-xl shadow-lg p-6 h-full border border-gray-100 relative">
+                    {event.crowdFed && (
+                        <div className="absolute top-4 right-4">
+                            <div className="crowd-badge text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                                👥 CROWD-FED
+                            </div>
+                        </div>
+                    )}
+                    
                     <div className="flex justify-between items-start mb-4">
-                        <h2 className="text-2xl font-bold text-indigo-800 mb-2 leading-tight">{event.event}</h2>
+                        <h2 className="text-2xl font-bold text-indigo-800 mb-2 leading-tight pr-20">{event.event}</h2>
                         <span className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-md">
                             {event.year}
                         </span>
@@ -283,21 +341,215 @@
             );
         }
 
+        function AddEventModal({ isOpen, onClose, onAddEvent }) {
+            const [formData, setFormData] = useState({
+                event: '',
+                year: new Date().getFullYear(),
+                date: '',
+                artists: '',
+                band: '',
+                compere: ''
+            });
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                
+                if (!formData.event.trim()) {
+                    alert('Event name is required!');
+                    return;
+                }
+
+                const artistsArray = formData.artists
+                    .split(',')
+                    .map(artist => artist.trim())
+                    .filter(artist => artist !== '');
+
+                const newEvent = {
+                    ...formData,
+                    artists: artistsArray.length > 0 ? artistsArray : ['N/A'],
+                    band: formData.band.trim() || '-',
+                    compere: formData.compere.trim() || '-',
+                    date: formData.date.trim() || '-',
+                    crowdFed: true
+                };
+
+                onAddEvent(newEvent);
+                setFormData({
+                    event: '',
+                    year: new Date().getFullYear(),
+                    date: '',
+                    artists: '',
+                    band: '',
+                    compere: ''
+                });
+                onClose();
+            };
+
+            const handleChange = (field) => (e) => {
+                setFormData(prev => ({
+                    ...prev,
+                    [field]: e.target.value
+                }));
+            };
+
+            if (!isOpen) return null;
+
+            return (
+                <div className="fixed inset-0 modal-backdrop flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="crowd-gradient p-6 rounded-t-2xl text-white">
+                            <div className="flex justify-between items-center">
+                                <h2 className="text-2xl font-bold flex items-center">
+                                    <span className="mr-3">🎭</span>
+                                    Add New Event
+                                </h2>
+                                <button 
+                                    onClick={onClose}
+                                    className="text-white hover:text-red-200 text-2xl font-bold transition-colors"
+                                >
+                                    ×
+                                </button>
+                            </div>
+                            <p className="mt-2 opacity-90">Share your knowledge with the community!</p>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Event Name *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.event}
+                                        onChange={handleChange('event')}
+                                        className="form-input w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-orange-200 focus:border-orange-500"
+                                        placeholder="e.g., Geethanjali"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Year
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={formData.year}
+                                        onChange={handleChange('year')}
+                                        className="form-input w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-orange-200 focus:border-orange-500"
+                                        min="2020"
+                                        max="2030"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Date
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.date}
+                                        onChange={handleChange('date')}
+                                        className="form-input w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-orange-200 focus:border-orange-500"
+                                        placeholder="e.g., May-30 or leave empty"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Band
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.band}
+                                        onChange={handleChange('band')}
+                                        className="form-input w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-orange-200 focus:border-orange-500"
+                                        placeholder="e.g., Yaka Crew"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Compere
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.compere}
+                                        onChange={handleChange('compere')}
+                                        className="form-input w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-orange-200 focus:border-orange-500"
+                                        placeholder="e.g., Thisanka"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Artists
+                                    </label>
+                                    <textarea
+                                        value={formData.artists}
+                                        onChange={handleChange('artists')}
+                                        className="form-input w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-orange-200 focus:border-orange-500 h-20"
+                                        placeholder="Separate with commas: Artist 1, Artist 2, Artist 3"
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">Separate multiple artists with commas</p>
+                                </div>
+                            </div>
+
+                            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                                <div className="flex items-center">
+                                    <span className="text-2xl mr-3">👥</span>
+                                    <div>
+                                        <h4 className="font-semibold text-orange-800">Crowd-Sourced Data</h4>
+                                        <p className="text-sm text-orange-700">This event will be marked as community-contributed data</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-4 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={onClose}
+                                    className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="add-btn flex-1 px-6 py-3 text-white rounded-lg font-semibold"
+                                >
+                                    Add Event 🎉
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            );
+        }
+
         function App() {
             const [searchTerm, setSearchTerm] = useState('');
+            const [events, setEvents] = useState(initialEventsData);
+            const [isModalOpen, setIsModalOpen] = useState(false);
 
             const filteredEvents = useMemo(() => {
-                if (!searchTerm) return eventsData;
+                if (!searchTerm) return events;
                 
                 const search = searchTerm.toLowerCase();
-                return eventsData.filter(event => 
+                return events.filter(event => 
                     event.event.toLowerCase().includes(search) ||
                     event.year.toString().includes(search) ||
                     event.band.toLowerCase().includes(search) ||
                     event.compere.toLowerCase().includes(search) ||
                     event.artists.some(artist => artist.toLowerCase().includes(search))
                 );
-            }, [searchTerm]);
+            }, [searchTerm, events]);
+
+            const addEvent = (newEvent) => {
+                setEvents(prev => [newEvent, ...prev]);
+            };
+
+            const crowdFedCount = events.filter(event => event.crowdFed).length;
 
             return (
                 <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -307,27 +559,47 @@
                             <h1 className="text-4xl md:text-5xl font-bold text-center mb-4">
                                 🎭 University Events Database
                             </h1>
-                            <p className="text-xl text-center opacity-95 max-w-2xl mx-auto">
+                            <p className="text-xl text-center opacity-95 max-w-2xl mx-auto mb-4">
                                 Search through our collection of university events, artists, and bands
                             </p>
-                        </div>
-
-                        {/* Search Bar */}
-                        <div className="mb-8">
-                            <div className="relative max-w-2xl mx-auto">
-                                <input
-                                    type="text"
-                                    placeholder="Search by event name, artist, band, compere, or year..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="search-input w-full px-6 py-4 pl-14 text-lg border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 shadow-lg bg-white"
-                                />
-                                <div className="absolute left-5 top-1/2 transform -translate-y-1/2">
-                                    <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
+                            <div className="flex justify-center items-center gap-4 flex-wrap">
+                                <div className="bg-white/20 px-4 py-2 rounded-full text-sm">
+                                    📊 {events.length} Total Events
+                                </div>
+                                <div className="bg-orange-500/80 px-4 py-2 rounded-full text-sm">
+                                    👥 {crowdFedCount} Community Added
                                 </div>
                             </div>
+                        </div>
+
+                        {/* Action Bar */}
+                        <div className="flex flex-col md:flex-row gap-4 mb-8">
+                            {/* Search Bar */}
+                            <div className="flex-1">
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        placeholder="Search by event name, artist, band, compere, or year..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="search-input w-full px-6 py-4 pl-14 text-lg border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 shadow-lg bg-white"
+                                    />
+                                    <div className="absolute left-5 top-1/2 transform -translate-y-1/2">
+                                        <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Add Event Button */}
+                            <button
+                                onClick={() => setIsModalOpen(true)}
+                                className="add-btn px-8 py-4 text-white rounded-xl font-semibold text-lg shadow-lg flex items-center justify-center gap-3 whitespace-nowrap"
+                            >
+                                <span className="text-xl">➕</span>
+                                Add Event
+                            </button>
                         </div>
 
                         {/* Results */}
@@ -336,7 +608,13 @@
                                 <div className="bg-white border-2 border-gray-200 rounded-2xl p-12 max-w-md mx-auto shadow-lg">
                                     <div className="text-6xl mb-4">🔍</div>
                                     <h3 className="text-2xl font-bold text-gray-800 mb-3">No events found</h3>
-                                    <p className="text-gray-600 text-lg">Try adjusting your search terms</p>
+                                    <p className="text-gray-600 text-lg mb-4">Try adjusting your search terms</p>
+                                    <button
+                                        onClick={() => setIsModalOpen(true)}
+                                        className="add-btn px-6 py-3 text-white rounded-lg font-semibold"
+                                    >
+                                        Add the first event! 🎉
+                                    </button>
                                 </div>
                             </div>
                         ) : (
@@ -345,14 +623,21 @@
                                     <h2 className="text-2xl font-bold text-gray-700">
                                         Found {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''}
                                     </h2>
-                                    <div className="text-sm text-gray-500 bg-white px-4 py-2 rounded-full shadow-md">
-                                        {eventsData.length} total events
+                                    <div className="flex gap-3">
+                                        <div className="text-sm text-gray-500 bg-white px-4 py-2 rounded-full shadow-md">
+                                            📊 {events.length} total
+                                        </div>
+                                        {crowdFedCount > 0 && (
+                                            <div className="text-sm text-orange-600 bg-orange-50 px-4 py-2 rounded-full shadow-md border border-orange-200">
+                                                👥 {crowdFedCount} crowd-fed
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                                 
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                     {filteredEvents.map((event, index) => (
-                                        <EventCard key={index} event={event} />
+                                        <EventCard key={`${event.event}-${event.year}-${index}`} event={event} />
                                     ))}
                                 </div>
                             </>
@@ -360,16 +645,32 @@
 
                         {/* Footer */}
                         <div className="mt-16 text-center">
-                            <div className="bg-white rounded-xl shadow-lg p-6 max-w-md mx-auto">
-                                <p className="text-gray-600">
-                                    🎓 University Events Database
+                            <div className="bg-white rounded-xl shadow-lg p-6 max-w-lg mx-auto">
+                                <p className="text-gray-600 mb-2">
+                                    🎓 University Events Database - Community Edition
                                 </p>
-                                <p className="text-sm text-gray-500 mt-2">
+                                <p className="text-sm text-gray-500 mb-3">
                                     Built with React & Tailwind CSS
                                 </p>
+                                <div className="flex justify-center items-center gap-4 text-sm">
+                                    <span className="flex items-center gap-1">
+                                        <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
+                                        Official Data
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                        <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+                                        Community Added
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    <AddEventModal 
+                        isOpen={isModalOpen}
+                        onClose={() => setIsModalOpen(false)}
+                        onAddEvent={addEvent}
+                    />
                 </div>
             );
         }
@@ -377,5 +678,5 @@
         ReactDOM.render(<App />, document.getElementById('root'));
     </script>
 </body>
-
 </html>
+                
